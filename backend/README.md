@@ -97,3 +97,40 @@ Scenario 추가 방식으로 확장 가능:
 개발자가 실제 환경에서 문제를 발견하고 해결하는 과정을 학습하는 Troubleshooting Training Platform을 목표로 합니다.
 
 <img width="1000" height="666" alt="52826_74581_3636" src="https://github.com/user-attachments/assets/1f2d8094-88c0-495a-84f4-3d8b6bec99a3" />
+
+## Backend Setup
+
+- Java 21
+- Spring Boot 3.5
+- Gradle
+- PostgreSQL
+- Redis
+- RabbitMQ
+- Docker Compose
+- Spring Actuator
+
+```bash
+./gradlew bootRun
+```
+
+Spring Boot Docker Compose support가 `compose.yaml`의 PostgreSQL, Redis, RabbitMQ를 함께 실행합니다.
+
+인프라만 직접 띄우려면:
+
+```bash
+docker compose up -d
+```
+
+초기 API:
+
+```bash
+curl http://localhost:8080/actuator/health
+curl http://localhost:8080/api/scenarios
+curl http://localhost:8080/api/scenarios/db-connection-pool-exhaustion
+```
+
+현재 포함된 시나리오 후보:
+
+- DB connection pool exhaustion
+- Async job queue backlog
+- Slow query under load
