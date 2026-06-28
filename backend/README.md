@@ -110,16 +110,19 @@ Scenario 추가 방식으로 확장 가능:
 - Spring Actuator
 
 ```bash
-./gradlew bootRun
+./gradlew :app:bootRun
 ```
 
-Spring Boot Docker Compose support가 `compose.yaml`의 PostgreSQL, Redis, RabbitMQ를 함께 실행합니다.
+기본 실행에서는 Spring Boot Docker Compose support를 끄고, PostgreSQL, Redis, RabbitMQ는 직접 띄웁니다.
 
-인프라만 직접 띄우려면:
+mise를 사용하는 경우:
 
 ```bash
-docker compose up -d
+mise run docker-compose:up
+mise run docker-compose:up-except -- postgres
 ```
+
+`docker-compose:up-except`는 repo root의 `compose.yaml`에 정의된 service 이름만 받습니다.
 
 초기 API:
 

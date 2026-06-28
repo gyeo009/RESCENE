@@ -1,1 +1,8 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.10.0'
+}
 rootProject.name = 'RESCENE'
+
+include 'app'
+include 'api'
+include 'common'
