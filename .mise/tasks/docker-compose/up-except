@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if [ "$#" -eq 0 ]; then
+	echo "usage: mise run docker-compose:up-except -- <service> [service...]"
+	echo
+	echo "available services:"
+	docker compose config --services | sed 's/^/  /'
+	exit 2
+fi
+
+services=()
+while IFS= read -r service; do
+	services+=("$service")
+done < <(docker compose config --services)
+targets=()
+
+for service in "${services[@]}"; do
+	skip=false
+	for excluded in "$@"; do
+		if [ "$service" = "$excluded" ]; then
+			skip=true
+			break
+		fi
+	done
+
+	if [ "$skip" = false ]; then
+		targets+=("$service")
+	fi
+done
+
+for excluded in "$@"; do
+	found=false
+	for service in "${services[@]}"; do
+		if [ "$service" = "$excluded" ]; then
+			found=true
+			break
+		fi
+	done
+
+	if [ "$found" = false ]; then
+		echo "unknown service: $excluded" >&2
+		echo "available services:" >&2
+		printf '  %s\n' "${services[@]}" >&2
+		exit 2
+	fi
+done
+
+if [ "${#targets[@]}" -eq 0 ]; then
+	echo "nothing to start; every compose service was excluded"
+	exit 0
+fi
+
+docker compose up -d "${targets[@]}"
