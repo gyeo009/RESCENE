@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-	implementation project(':api')
+	implementation project(':core')
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.flywaydb:flyway-core'

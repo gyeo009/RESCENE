@@ -4,5 +4,5 @@ plugins {
 rootProject.name = 'RESCENE'
 
 include 'app'
-include 'api'
+include 'core'
 include 'common'
