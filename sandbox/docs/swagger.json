@@ -1,0 +1,100 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Extensible API server for managing Docker sandbox containers.",
+        "title": "Sandbox API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/sandbox/run": {
+            "post": {
+                "description": "Start a new mock sandbox container matching the scenario and user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sandbox"
+                ],
+                "summary": "Run sandbox container",
+                "parameters": [
+                    {
+                        "description": "Parameters to run sandbox",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SandboxRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SandboxRunResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.SandboxRunRequest": {
+            "type": "object",
+            "required": [
+                "scenario",
+                "user"
+            ],
+            "properties": {
+                "scenario": {
+                    "type": "string",
+                    "example": "python-basic"
+                },
+                "user": {
+                    "type": "string",
+                    "example": "test-user"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "invalid request parameters"
+                }
+            }
+        },
+        "response.SandboxRunResponse": {
+            "type": "object",
+            "properties": {
+                "container_id": {
+                    "type": "string",
+                    "example": "sandbox-test-user"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "running"
+                }
+            }
+        }
+    }
+}

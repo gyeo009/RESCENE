@@ -1,0 +1,67 @@
+basePath: /
+definitions:
+  dto.SandboxRunRequest:
+    properties:
+      scenario:
+        example: python-basic
+        type: string
+      user:
+        example: test-user
+        type: string
+    required:
+    - scenario
+    - user
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        example: invalid request parameters
+        type: string
+    type: object
+  response.SandboxRunResponse:
+    properties:
+      container_id:
+        example: sandbox-test-user
+        type: string
+      status:
+        example: running
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Extensible API server for managing Docker sandbox containers.
+  title: Sandbox API
+  version: "1.0"
+paths:
+  /sandbox/run:
+    post:
+      consumes:
+      - application/json
+      description: Start a new mock sandbox container matching the scenario and user
+      parameters:
+      - description: Parameters to run sandbox
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SandboxRunRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SandboxRunResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Run sandbox container
+      tags:
+      - sandbox
+swagger: "2.0"
