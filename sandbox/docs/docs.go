@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/sandbox/run": {
             "post": {
-                "description": "Start a new mock sandbox container matching the scenario and user",
+                "description": "요청된 시나리오와 사용자 정보에 매칭되는 샌드박스 컨테이너를 구동합니다.",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,10 +27,10 @@ const docTemplate = `{
                 "tags": [
                     "sandbox"
                 ],
-                "summary": "Run sandbox container",
+                "summary": "샌드박스 컨테이너 실행",
                 "parameters": [
                     {
-                        "description": "Parameters to run sandbox",
+                        "description": "샌드박스 실행 파라미터",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -71,10 +71,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "scenario": {
+                    "description": "실행할 시나리오 이름 (필수)",
                     "type": "string",
                     "example": "python-basic"
                 },
                 "user": {
+                    "description": "요청 사용자 식별자 (필수)",
                     "type": "string",
                     "example": "test-user"
                 }
@@ -84,6 +86,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "description": "에러 상세 메시지",
                     "type": "string",
                     "example": "invalid request parameters"
                 }
@@ -93,10 +96,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "container_id": {
+                    "description": "생성된 컨테이너 식별자 ID",
                     "type": "string",
                     "example": "sandbox-test-user"
                 },
                 "status": {
+                    "description": "현재 컨테이너 상태",
                     "type": "string",
                     "example": "running"
                 }
@@ -112,7 +117,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Sandbox API",
-	Description:      "Extensible API server for managing Docker sandbox containers.",
+	Description:      "Docker 샌드박스 컨테이너 관리를 위한 확장 가능한 API 서버입니다.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
