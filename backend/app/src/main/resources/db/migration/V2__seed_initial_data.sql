@@ -2,7 +2,7 @@ insert into users (id, display_name, created_at, updated_at)
 values
 	(1, 'test_user', now(), now());
 
-insert into scenario_goals (id, title, summary, description, category, difficulty, created_at, updated_at)
+insert into scenarios (id, title, summary, description, category, difficulty, created_at, updated_at)
 values
 	(
 		1,

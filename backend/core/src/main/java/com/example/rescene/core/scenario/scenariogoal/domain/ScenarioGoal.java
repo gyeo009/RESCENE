@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = ScenarioGoal.TABLE_NAME)
 public class ScenarioGoal extends AuditableEntity {
 
-    static final String TABLE_NAME = "scenario_goal";
+    public static final String TABLE_NAME = "scenarios";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
