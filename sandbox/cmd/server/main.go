@@ -8,6 +8,7 @@ import (
 	"sandbox/internal/handler"
 	"sandbox/internal/router"
 	"sandbox/internal/service"
+	"sandbox/internal/workspace"
 )
 
 // @title Sandbox API
@@ -20,12 +21,17 @@ func main() {
 	cfg := config.Load()
 
 	// 2. 의존성 주입(Dependency Injection) 초기화
-	// 실제 Docker 환경과 연동하기 위해 NewDockerClient를 사용합니다.
+	// 2.1 Workspace Manager 초기화
+	workspaceManager := workspace.NewManager(cfg.WorkspacesDir)
+
+	// 2.2 Docker 클라이언트 초기화
 	dockerClient, err := docker.NewDockerClient()
 	if err != nil {
 		log.Fatalf("Docker 클라이언트 초기화 실패: %v", err)
 	}
-	sandboxService := service.NewSandboxService(dockerClient)
+
+	// 2.3 서비스 및 핸들러 초기화
+	sandboxService := service.NewSandboxService(dockerClient, workspaceManager, cfg.HostWorkspacesDir)
 	sandboxHandler := handler.NewSandboxHandler(sandboxService)
 
 	// 3. 라우터 설정 초기화
