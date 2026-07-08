@@ -33,7 +33,8 @@ public class ScenarioGoal extends AuditableEntity {
     @Column(nullable = false, length = 50)
     private String difficulty;
 
-    private ScenarioGoal(String title, String summary, String description, String category, String difficulty) {
+    private ScenarioGoal(
+            String title, String summary, String description, String category, String difficulty) {
         validateRequired(title, "title");
         validateRequired(summary, "summary");
         validateRequired(description, "description");
@@ -48,12 +49,13 @@ public class ScenarioGoal extends AuditableEntity {
     }
 
     private static void validateRequired(String value, String fieldName) {
-        if(value == null || value.isBlank()){
+        if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Scenario Goal " + fieldName + " is required");
         }
     }
 
-    public static ScenarioGoal create(String title, String summary, String description, String category, String difficulty) {
+    public static ScenarioGoal create(
+            String title, String summary, String description, String category, String difficulty) {
         return new ScenarioGoal(title, summary, description, category, difficulty);
     }
 }

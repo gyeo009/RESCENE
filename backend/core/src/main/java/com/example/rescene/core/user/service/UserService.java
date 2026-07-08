@@ -1,5 +1,6 @@
 package com.example.rescene.core.user.service;
 
+import com.example.rescene.core.common.exception.ResourceNotFoundException;
 import com.example.rescene.core.user.domain.UserEntity;
 import com.example.rescene.core.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,10 @@ public class UserService {
     }
 
     public String getUserDisplayName(Long id) {
-        UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+        UserEntity user =
+                userRepository
+                        .findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
 
         return user.getDisplayName();
     }

@@ -128,8 +128,11 @@ mise run docker-compose:up-except -- postgres
 
 ```bash
 curl http://localhost:8080/actuator/health
-curl http://localhost:8080/api/scenarios
-curl http://localhost:8080/api/scenarios/db-connection-pool-exhaustion
+curl http://localhost:8080/api/scenario-goals
+curl http://localhost:8080/api/scenario-goals/1
+curl -X POST http://localhost:8080/api/scenario-goals/1/runs \
+  -H 'Content-Type: application/json' \
+  -d '{"userId":1}'
 ```
 
 현재 포함된 시나리오 후보:

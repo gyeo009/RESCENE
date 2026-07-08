@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root/backend"
+
+./gradlew -q spotlessApply
+./gradlew -q spotlessCheck
+
+cd "$repo_root"
+
+if ! git diff --quiet -- backend; then
+	echo "Spotless formatted Java files."
+	echo "Review the formatting changes, stage them, then commit again."
+	echo
+	git diff --name-only -- backend
+	exit 1
+fi

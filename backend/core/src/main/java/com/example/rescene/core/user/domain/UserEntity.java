@@ -14,14 +14,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        name = "users"
-)
+@Table(name = "users")
 public class UserEntity extends AuditableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-	@Column(name = "display_name", nullable = false, length = 50)
-	private String displayName;
+    @Column(name = "display_name", nullable = false, length = 50)
+    private String displayName;
 }

@@ -20,38 +20,38 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "scenario_specs")
 public class ScenarioSpec extends AuditableEntity {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "scenario_id", nullable = false)
-	private ScenarioGoal scenarioGoal;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "scenario_id", nullable = false)
+    private ScenarioGoal scenarioGoal;
 
-	@Column(name = "image_ref", nullable = false, length = 255)
-	private String imageRef;
+    @Column(name = "image_ref", nullable = false, length = 255)
+    private String imageRef;
 
-	private ScenarioSpec(ScenarioGoal scenarioGoal, String imageRef) {
-		validateRequired(scenarioGoal, "scenarioGoal");
-		validateRequired(imageRef, "imageRef");
+    private ScenarioSpec(ScenarioGoal scenarioGoal, String imageRef) {
+        validateRequired(scenarioGoal, "scenarioGoal");
+        validateRequired(imageRef, "imageRef");
 
-		this.scenarioGoal = scenarioGoal;
-		this.imageRef = imageRef;
-	}
+        this.scenarioGoal = scenarioGoal;
+        this.imageRef = imageRef;
+    }
 
-	public static ScenarioSpec create(ScenarioGoal scenarioGoal, String imageRef) {
-		return new ScenarioSpec(scenarioGoal, imageRef);
-	}
+    public static ScenarioSpec create(ScenarioGoal scenarioGoal, String imageRef) {
+        return new ScenarioSpec(scenarioGoal, imageRef);
+    }
 
-	private static void validateRequired(Object value, String fieldName) {
-		if (value == null) {
-			throw new IllegalArgumentException("Scenario spec " + fieldName + " is required");
-		}
-	}
+    private static void validateRequired(Object value, String fieldName) {
+        if (value == null) {
+            throw new IllegalArgumentException("Scenario spec " + fieldName + " is required");
+        }
+    }
 
-	private static void validateRequired(String value, String fieldName) {
-		if (value == null || value.isBlank()) {
-			throw new IllegalArgumentException("Scenario spec " + fieldName + " is required");
-		}
-	}
+    private static void validateRequired(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Scenario spec " + fieldName + " is required");
+        }
+    }
 }

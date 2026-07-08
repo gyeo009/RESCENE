@@ -9,17 +9,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UserController {
-	private final UserService userService;
+    private final UserService userService;
 
-	public UserController(UserService userService) {
-		this.userService = userService;
-	}
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
-	@GetMapping("/api/users/{id}/display-name")
-	public ResponseEntity<UserDisplayNameResponse> getUserDisplayName(@PathVariable("id") Long id) {
-		String displayName = userService.getUserDisplayName(id);
-		return ResponseEntity.ok(
-				new UserDisplayNameResponse(id, displayName)
-		);
-	}
+    @GetMapping("/api/users/{id}/display-name")
+    public ResponseEntity<UserDisplayNameResponse> getUserDisplayName(@PathVariable("id") Long id) {
+        String displayName = userService.getUserDisplayName(id);
+        return ResponseEntity.ok(new UserDisplayNameResponse(id, displayName));
+    }
 }
