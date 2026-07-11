@@ -44,33 +44,73 @@ sandbox/
 
 ## 2. API 사용 방법 (API Usage Guide)
 
-### 2.1 샌드박스 구동 API
+이 프로젝트는 크게 **샌드박스 수명 주기 제어 API**와 **샌드박스 내 작업 파일 CRUD API**로 구성되어 있습니다.
 
-* **메서드 및 경로**: `POST /sandbox/run`
-* **요청 헤더**: `Content-Type: application/json`
+### 2.1 API 라우트 목록
 
-**요청 예시 (Request Body)**
-```json
-{
-    "scenario": "sandbox-app:latest",
-    "user": "test-user-2"
-}
-```
-> **주의**: Docker SDK 실제 모드가 활성화되어 있으므로, `scenario` 값은 호스트 컴퓨터의 Docker Engine에 실제로 존재하는 이미지명(예: `sandbox-app:latest`)이어야 컨테이너 기동에 성공합니다.
+| 분류 | HTTP 메서드 | 엔드포인트 경로 | 설명 |
+| :--- | :--- | :--- | :--- |
+| **수명 주기** | `POST` | `/sandbox` | 새로운 샌드박스 작업 공간 및 컨테이너 생성 |
+| **수명 주기** | `DELETE` | `/sandbox/:id` | 지정된 샌드박스 제거 및 워크스페이스 정리 |
+| **수명 주기** | `POST` | `/sandbox/:id/run` | 샌드박스 내부 명령어 동기 실행 (Exec) |
+| **수명 주기** | `POST` | `/sandbox/:id/stop` | 작동 중인 샌드박스 정지 (Stop) |
+| **수명 주기** | `GET` | `/sandbox/:id/logs` | 샌드박스의 stdout/stderr 로그 전체 조회 |
+| **파일 CRUD** | `GET` | `/sandbox/:id/files` | 샌드박스 내 파일 상대경로 목록 조회 |
+| **파일 CRUD** | `GET` | `/sandbox/:id/files/content` | 특정 개별 파일 내용 상세 조회 (텍스트) |
+| **파일 CRUD** | `PUT` | `/sandbox/:id/files` | 작업 공간 내 신규 파일 저장 및 기존 파일 수정 |
+| **파일 CRUD** | `DELETE` | `/sandbox/:id/files` | 작업 공간 내 특정 파일 삭제 |
 
-**성공 응답 예시 (Response Body - 200 OK)**
-```json
-{
-    "container_id": "56dc3cf5965b8876fb1797760f6f0a1ef329787979b4e698fa129446de68475e",
-    "status": "running"
-}
-```
+### 2.2 주요 API 요청 및 응답 예시
+
+#### 1) 샌드박스 생성 API (`POST /sandbox`)
+* **요청 본문 (Request Body)**
+  ```json
+  {
+      "scenario": "python:3.10-alpine"
+  }
+  ```
+* **성공 응답 (Response Body - 200 OK)**
+  ```json
+  {
+      "sandbox_id": "fa485df82377da8618799cb4f69642b2",
+      "container_id": "sandbox-fa485df82377da8618799cb4f69642b2"
+  }
+  ```
+
+#### 2) 명령어 실행 API (`POST /sandbox/:id/run`)
+* **요청 본문 (Request Body)**
+  ```json
+  {
+      "cmd": ["python", "main.py"]
+  }
+  ```
+* **성공 응답 (Response Body - 200 OK)**
+  ```json
+  {
+      "output": "Hello, Web IDE Sandbox!\n"
+  }
+  ```
+
+#### 3) 파일 생성 및 저장 API (`PUT /sandbox/:id/files`)
+* **요청 본문 (Request Body)**
+  ```json
+  {
+      "filename": "test.py",
+      "content": "print('hello from API!')"
+  }
+  ```
+* **성공 응답 (Response Body - 200 OK)**
+  ```json
+  {
+      "status": "success"
+  }
+  ```
 
 ---
 
-### 2.2 Swagger API 문서화 접속
+### 2.3 Swagger API 문서화 접속
 
-Swagger UI를 지원하며 아래 URL을 통해 전체 API 스펙과 파라미터 구조를 직관적으로 확인하고 직접 테스트해 볼 수 있습니다.
+Swagger UI를 연동하여 전체 API 스펙과 파라미터 구조를 웹 브라우저에서 편리하게 확인하고 모의 실행해 볼 수 있습니다.
 
 * **Swagger 접속 주소**: `http://127.0.0.1:8080/swagger/index.html`
 
@@ -104,24 +144,26 @@ go run github.com/swaggo/swag/cmd/swag@latest init -g cmd/server/main.go -o docs
 
 ## 4. 실제 API 실행 테스트 (Execution Test History)
 
-서버가 띄워진 상태에서 아래 PowerShell 또는 curl 명령어로 실행 내역을 확인할 수 있습니다.
+서버가 띄워진 상태에서 아래 curl 명령어로 동작을 검증할 수 있습니다.
 
-### PowerShell을 이용한 테스트 요청
-```powershell
-Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8080/sandbox/run -ContentType "application/json" -Body '{"scenario":"sandbox-app:latest","user":"test-user-2"}' | ConvertTo-Json
-```
-
-### curl을 이용한 테스트 요청
+### 4.1 curl을 이용한 샌드박스 생성 테스트 요청
 ```bash
-curl -X POST http://127.0.0.1:8080/sandbox/run \
+curl -X POST http://127.0.0.1:8080/sandbox \
   -H "Content-Type: application/json" \
-  -d '{"scenario":"sandbox-app:latest","user":"test-user-2"}'
+  -d '{"scenario":"python:3.10-alpine"}'
 ```
 
-**호스트 Docker Engine 컨테이너 감지 검증**
-요청 직후 터미널에 `docker ps -a`를 입력하면 백엔드 서버에서 실행한 `sandbox-test-user-2` 컨테이너가 성공적으로 부팅되어 작동하고 있는 것을 확인할 수 있습니다.
+### 4.2 curl을 이용한 소스 코드 실행 테스트 요청
+```bash
+# <sandbox_id> 부분은 위 생성 요청에서 반환받은 sandbox_id 값을 입력합니다.
+curl -X POST http://127.0.0.1:8080/sandbox/<sandbox_id>/run \
+  -H "Content-Type: application/json" \
+  -d '{"cmd":["python","main.py"]}'
+```
 
+### 4.3 호스트 Docker Engine 컨테이너 확인
+요청 후 터미널에 `docker ps -a`를 입력하면 백엔드 서버에서 실행한 `sandbox-<sandbox_id>` 컨테이너가 성공적으로 부팅되어 구동되고 있는 것을 확인할 수 있습니다.
 ```text
-CONTAINER ID   IMAGE                COMMAND   CREATED         STATUS         PORTS   NAMES
-56dc3cf5965b   sandbox-app:latest   "air"     6 seconds ago   Up 5 seconds           sandbox-test-user-2
+CONTAINER ID   IMAGE                COMMAND                  CREATED         STATUS         PORTS   NAMES
+fa485df82377   python:3.10-alpine   "tail -f /dev/null"      6 seconds ago   Up 5 seconds           sandbox-fa485df82377...
 ```
