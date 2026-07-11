@@ -8,8 +8,9 @@ import (
 func TestConfigLoadDefaults(t *testing.T) {
 	// Clear relevant environment variables
 	os.Unsetenv("PORT")
+	os.Unsetenv("WORKSPACES_DIR")
+	os.Unsetenv("HOST_WORKSPACES_DIR")
 	os.Unsetenv("SANDBOX_RUNTIME")
-	os.Unsetenv("SANDBOX_WORKSPACE_BASE_DIR")
 	os.Unsetenv("SANDBOX_CLEANUP_WORKSPACE")
 	os.Unsetenv("SANDBOX_READ_ONLY_ROOTFS")
 	os.Unsetenv("SANDBOX_TMPFS_SIZE")
@@ -24,6 +25,12 @@ func TestConfigLoadDefaults(t *testing.T) {
 
 	if cfg.Port != "8080" {
 		t.Errorf("Expected default Port to be 8080, got %s", cfg.Port)
+	}
+	if cfg.WorkspacesDir != "workspaces" {
+		t.Errorf("Expected default WorkspacesDir to be workspaces, got %s", cfg.WorkspacesDir)
+	}
+	if cfg.HostWorkspacesDir != "workspaces" {
+		t.Errorf("Expected default HostWorkspacesDir to be workspaces, got %s", cfg.HostWorkspacesDir)
 	}
 	if cfg.Runtime != "runc" {
 		t.Errorf("Expected default Runtime to be runc, got %s", cfg.Runtime)
@@ -59,8 +66,9 @@ func TestConfigLoadDefaults(t *testing.T) {
 
 func TestConfigLoadEnvOverrides(t *testing.T) {
 	os.Setenv("PORT", "9090")
+	os.Setenv("WORKSPACES_DIR", "/local/workspaces")
+	os.Setenv("HOST_WORKSPACES_DIR", "/host/workspaces")
 	os.Setenv("SANDBOX_RUNTIME", "runsc")
-	os.Setenv("SANDBOX_WORKSPACE_BASE_DIR", "/custom/workspaces")
 	os.Setenv("SANDBOX_CLEANUP_WORKSPACE", "false")
 	os.Setenv("SANDBOX_READ_ONLY_ROOTFS", "false")
 	os.Setenv("SANDBOX_TMPFS_SIZE", "128m")
@@ -73,8 +81,9 @@ func TestConfigLoadEnvOverrides(t *testing.T) {
 
 	defer func() {
 		os.Unsetenv("PORT")
+		os.Unsetenv("WORKSPACES_DIR")
+		os.Unsetenv("HOST_WORKSPACES_DIR")
 		os.Unsetenv("SANDBOX_RUNTIME")
-		os.Unsetenv("SANDBOX_WORKSPACE_BASE_DIR")
 		os.Unsetenv("SANDBOX_CLEANUP_WORKSPACE")
 		os.Unsetenv("SANDBOX_READ_ONLY_ROOTFS")
 		os.Unsetenv("SANDBOX_TMPFS_SIZE")
@@ -91,11 +100,14 @@ func TestConfigLoadEnvOverrides(t *testing.T) {
 	if cfg.Port != "9090" {
 		t.Errorf("Expected Port to be 9090, got %s", cfg.Port)
 	}
+	if cfg.WorkspacesDir != "/local/workspaces" {
+		t.Errorf("Expected WorkspacesDir to be /local/workspaces, got %s", cfg.WorkspacesDir)
+	}
+	if cfg.HostWorkspacesDir != "/host/workspaces" {
+		t.Errorf("Expected HostWorkspacesDir to be /host/workspaces, got %s", cfg.HostWorkspacesDir)
+	}
 	if cfg.Runtime != "runsc" {
 		t.Errorf("Expected Runtime to be runsc, got %s", cfg.Runtime)
-	}
-	if cfg.WorkspaceBaseDir != "/custom/workspaces" {
-		t.Errorf("Expected WorkspaceBaseDir to be /custom/workspaces, got %s", cfg.WorkspaceBaseDir)
 	}
 	if cfg.CleanupWorkspace {
 		t.Error("Expected CleanupWorkspace to be false")
