@@ -10,4 +10,5 @@ type SandboxInfo struct {
 type CreateSandboxRequest struct {
 	User     string // 샌드박스를 요청하는 사용자 식별자
 	Scenario string // 실행할 시나리오 및 컨테이너 이미지명
+	Runtime  string // 요청하는 컨테이너 런타임 (선택)
 }

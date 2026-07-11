@@ -15,6 +15,142 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/sandbox/copy": {
+            "post": {
+                "description": "샌드박스 내부의 지정된 경로로 텍스트/스크립트 파일을 복사합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sandbox"
+                ],
+                "summary": "샌드박스 내부로 파일 복사",
+                "parameters": [
+                    {
+                        "description": "파일 복사 파라미터",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SandboxCopyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "성공 메시지",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sandbox/execute": {
+            "post": {
+                "description": "실행 중인 샌드박스 내부에서 지정된 명령을 동기식으로 실행하고 출력을 반환합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sandbox"
+                ],
+                "summary": "샌드박스 내 명령어 실행",
+                "parameters": [
+                    {
+                        "description": "명령어 실행 파라미터",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SandboxExecRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SandboxExecResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sandbox/logs": {
+            "get": {
+                "description": "지정된 샌드박스의 stdout/stderr 로그를 조회합니다.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sandbox"
+                ],
+                "summary": "샌드박스 컨테이너 로그 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "컨테이너 식별자 ID",
+                        "name": "container_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SandboxLogsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/sandbox/run": {
             "post": {
                 "description": "요청된 시나리오와 사용자 정보에 매칭되는 샌드박스 컨테이너를 구동합니다.",
@@ -60,9 +196,127 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/sandbox/stop": {
+            "post": {
+                "description": "실행 중인 샌드박스 컨테이너를 중지하고 리소스를 제거합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sandbox"
+                ],
+                "summary": "샌드박스 컨테이너 종료 및 삭제",
+                "parameters": [
+                    {
+                        "description": "샌드박스 종료 파라미터",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SandboxDestroyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "성공 메시지",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dto.SandboxCopyRequest": {
+            "type": "object",
+            "required": [
+                "container_id",
+                "content",
+                "dest_path"
+            ],
+            "properties": {
+                "container_id": {
+                    "description": "파일을 복사할 컨테이너 ID (필수)",
+                    "type": "string",
+                    "example": "sandbox-test-user"
+                },
+                "content": {
+                    "description": "파일에 저장할 텍스트 내용 (필수)",
+                    "type": "string",
+                    "example": "print('hello')"
+                },
+                "dest_path": {
+                    "description": "저장할 컨테이너 내부 경로 (필수)",
+                    "type": "string",
+                    "example": "/workspace/test.py"
+                }
+            }
+        },
+        "dto.SandboxDestroyRequest": {
+            "type": "object",
+            "required": [
+                "container_id",
+                "user"
+            ],
+            "properties": {
+                "container_id": {
+                    "description": "종료할 컨테이너 식별자 ID (필수)",
+                    "type": "string",
+                    "example": "sandbox-test-user"
+                },
+                "user": {
+                    "description": "요청 사용자 식별자 (필수)",
+                    "type": "string",
+                    "example": "test-user"
+                }
+            }
+        },
+        "dto.SandboxExecRequest": {
+            "type": "object",
+            "required": [
+                "cmd",
+                "container_id"
+            ],
+            "properties": {
+                "cmd": {
+                    "description": "실행할 명령어 배열 (필수)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[\"echo\"",
+                        " \"hello\"]"
+                    ]
+                },
+                "container_id": {
+                    "description": "명령을 실행할 컨테이너 ID (필수)",
+                    "type": "string",
+                    "example": "sandbox-test-user"
+                }
+            }
+        },
         "dto.SandboxRunRequest": {
             "type": "object",
             "required": [
@@ -70,6 +324,11 @@ const docTemplate = `{
                 "user"
             ],
             "properties": {
+                "runtime": {
+                    "description": "실행할 컨테이너 런타임 (선택)",
+                    "type": "string",
+                    "example": "runsc"
+                },
                 "scenario": {
                     "description": "실행할 시나리오 이름 (필수)",
                     "type": "string",
@@ -89,6 +348,26 @@ const docTemplate = `{
                     "description": "에러 상세 메시지",
                     "type": "string",
                     "example": "invalid request parameters"
+                }
+            }
+        },
+        "response.SandboxExecResponse": {
+            "type": "object",
+            "properties": {
+                "output": {
+                    "description": "실행된 명령어의 표준 출력/에러 결과",
+                    "type": "string",
+                    "example": "hello\n"
+                }
+            }
+        },
+        "response.SandboxLogsResponse": {
+            "type": "object",
+            "properties": {
+                "logs": {
+                    "description": "컨테이너 로그 전체 출력",
+                    "type": "string",
+                    "example": "standard output log..."
                 }
             }
         },

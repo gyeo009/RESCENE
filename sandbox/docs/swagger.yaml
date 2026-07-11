@@ -1,7 +1,62 @@
 basePath: /
 definitions:
+  dto.SandboxCopyRequest:
+    properties:
+      container_id:
+        description: 파일을 복사할 컨테이너 ID (필수)
+        example: sandbox-test-user
+        type: string
+      content:
+        description: 파일에 저장할 텍스트 내용 (필수)
+        example: print('hello')
+        type: string
+      dest_path:
+        description: 저장할 컨테이너 내부 경로 (필수)
+        example: /workspace/test.py
+        type: string
+    required:
+    - container_id
+    - content
+    - dest_path
+    type: object
+  dto.SandboxDestroyRequest:
+    properties:
+      container_id:
+        description: 종료할 컨테이너 식별자 ID (필수)
+        example: sandbox-test-user
+        type: string
+      user:
+        description: 요청 사용자 식별자 (필수)
+        example: test-user
+        type: string
+    required:
+    - container_id
+    - user
+    type: object
+  dto.SandboxExecRequest:
+    properties:
+      cmd:
+        description: 실행할 명령어 배열 (필수)
+        example:
+        - '["echo"'
+        - ' "hello"]'
+        items:
+          type: string
+        type: array
+      container_id:
+        description: 명령을 실행할 컨테이너 ID (필수)
+        example: sandbox-test-user
+        type: string
+    required:
+    - cmd
+    - container_id
+    type: object
   dto.SandboxRunRequest:
     properties:
+      runtime:
+        description: 실행할 컨테이너 런타임 (선택)
+        example: runsc
+        type: string
       scenario:
         description: 실행할 시나리오 이름 (필수)
         example: python-basic
@@ -19,6 +74,21 @@ definitions:
       error:
         description: 에러 상세 메시지
         example: invalid request parameters
+        type: string
+    type: object
+  response.SandboxExecResponse:
+    properties:
+      output:
+        description: 실행된 명령어의 표준 출력/에러 결과
+        example: |
+          hello
+        type: string
+    type: object
+  response.SandboxLogsResponse:
+    properties:
+      logs:
+        description: 컨테이너 로그 전체 출력
+        example: standard output log...
         type: string
     type: object
   response.SandboxRunResponse:
@@ -39,6 +109,95 @@ info:
   title: Sandbox API
   version: "1.0"
 paths:
+  /sandbox/copy:
+    post:
+      consumes:
+      - application/json
+      description: 샌드박스 내부의 지정된 경로로 텍스트/스크립트 파일을 복사합니다.
+      parameters:
+      - description: 파일 복사 파라미터
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SandboxCopyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 성공 메시지
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 샌드박스 내부로 파일 복사
+      tags:
+      - sandbox
+  /sandbox/execute:
+    post:
+      consumes:
+      - application/json
+      description: 실행 중인 샌드박스 내부에서 지정된 명령을 동기식으로 실행하고 출력을 반환합니다.
+      parameters:
+      - description: 명령어 실행 파라미터
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SandboxExecRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SandboxExecResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 샌드박스 내 명령어 실행
+      tags:
+      - sandbox
+  /sandbox/logs:
+    get:
+      description: 지정된 샌드박스의 stdout/stderr 로그를 조회합니다.
+      parameters:
+      - description: 컨테이너 식별자 ID
+        in: query
+        name: container_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SandboxLogsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 샌드박스 컨테이너 로그 조회
+      tags:
+      - sandbox
   /sandbox/run:
     post:
       consumes:
@@ -67,6 +226,38 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: 샌드박스 컨테이너 실행
+      tags:
+      - sandbox
+  /sandbox/stop:
+    post:
+      consumes:
+      - application/json
+      description: 실행 중인 샌드박스 컨테이너를 중지하고 리소스를 제거합니다.
+      parameters:
+      - description: 샌드박스 종료 파라미터
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SandboxDestroyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 성공 메시지
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: 샌드박스 컨테이너 종료 및 삭제
       tags:
       - sandbox
 swagger: "2.0"

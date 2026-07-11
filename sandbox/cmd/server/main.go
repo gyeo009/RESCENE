@@ -21,7 +21,7 @@ func main() {
 
 	// 2. 의존성 주입(Dependency Injection) 초기화
 	// 실제 Docker 환경과 연동하기 위해 NewDockerClient를 사용합니다.
-	dockerClient, err := docker.NewDockerClient()
+	dockerClient, err := docker.NewDockerClient(cfg)
 	if err != nil {
 		log.Fatalf("Docker 클라이언트 초기화 실패: %v", err)
 	}

@@ -20,6 +20,10 @@ func NewRouter(sandboxHandler *handler.SandboxHandler) *gin.Engine {
 	sandboxGroup := r.Group("/sandbox")
 	{
 		sandboxGroup.POST("/run", sandboxHandler.RunSandbox)
+		sandboxGroup.POST("/stop", sandboxHandler.DestroySandbox)
+		sandboxGroup.POST("/execute", sandboxHandler.ExecuteCommand)
+		sandboxGroup.POST("/copy", sandboxHandler.CopyFile)
+		sandboxGroup.GET("/logs", sandboxHandler.GetLogs)
 	}
 
 	return r
