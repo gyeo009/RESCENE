@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    environment:
+      - HOST_WORKSPACES_DIR=${PWD}/workspaces
+
+    working_dir: /app
